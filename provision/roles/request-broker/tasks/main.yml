@@ -1,0 +1,13 @@
+- name: Copy hayabusa_request_broker.service
+  copy:
+    src: hayabusa_request_broker.service
+    dest: /lib/systemd/system/hayabusa_request_broker.service
+  tags: request-broker
+
+- name: Enable and start hayabusa_request_broker
+  systemd:
+    state: started
+    name: hayabusa_request_broker
+    daemon_reload: yes
+    enabled: yes
+  tags: request-broker

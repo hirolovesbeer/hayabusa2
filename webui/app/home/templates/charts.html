@@ -1,0 +1,91 @@
+{% extends "base_site.html" %}
+
+{% block title %} Search Queries {% endblock title %}
+
+{% block stylesheets %}
+  {{ super() }}
+{% endblock stylesheets %}
+
+{% block content %}
+  <div class="right_col" role="main">
+    <div class="">
+      <div class="page-title">
+        {% if not queries %}
+          <div class="title_left">
+            <h3>Charts <small>No search queries are registered.</small></h3>
+          </div>
+        {% endif %}
+
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12" style="margin-bottom: 10px;">
+            <div class="btn-group pull-right">
+              <button class="btn btn-default" type="button" onclick="updateChartSingleColmn();"><i class="fa fa-columns"></i> 1</button>
+              <button class="btn btn-default" type="button" onclick="updateChartTwoColmn();"><i class="fa fa-columns"></i> 2</button>
+              <button class="btn btn-default" type="button" onclick="updateChartThreeColmn();"><i class="fa fa-columns"></i> 3</button>
+            </div>
+          </div>
+          {% for query in queries %}
+            <div class="col-md-12 col-sm-12 col-xs-12" id="chart_block_{{ query.query_id }}">
+              <div class="x_panel">
+                <div class="x_title">
+                  <h2>{{ query.name }}</h2>
+                  <ul class="nav navbar-right">
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                      <ul class="dropdown-menu" role="menu">
+                        <li><a href="#" onclick="timeUnitMinute(charts['{{ query.query_id }}']); return false;">Minute</a>
+                        </li>
+                        <li><a href="#" onclick="timeUnitHour(charts['{{ query.query_id }}']); return false;">Hour</a>
+                        </li>
+                        <li><a href="#" onclick="timeUnitDay(charts['{{ query.query_id }}']); return false;">Day</a>
+                        </li>
+                        <li><a href="#" onclick="timeUnitWeek(charts['{{ query.query_id }}']); return false;">Week</a>
+                        </li>
+                        <li><a href="#" onclick="timeUnitMonth(charts['{{ query.query_id }}']); return false;">Month</a>
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                  <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                  <canvas id="{{ query.query_id }}"></canvas>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <div class="clearfix"></div>
+
+    </div>
+  </div>
+{% endblock content %}
+
+{% block javascripts %}
+  {{ super() }}
+  <!-- Chart.js -->
+  <script src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/hayabusa.js') }}"></script>
+  <script>
+    var queryIds = [];
+    {% for query in queries %}
+      queryIds.push('{{ query.query_id }}');
+    {% endfor %}
+    var charts = {};
+    function updatePageCharts() {
+      updateCharts(charts, '/home/query_chart_data');
+    }
+
+    $(document).ready( function() {
+      for (var i in queryIds) {
+        var queryId = queryIds[i];
+        charts[queryId] = createChart(queryId);
+      }
+      updatePageCharts();
+      setInterval(updatePageCharts, 30*1000);
+    });
+  </script>
+{% endblock javascripts %}

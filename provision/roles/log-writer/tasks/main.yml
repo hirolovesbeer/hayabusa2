@@ -1,0 +1,33 @@
+- name: Copy logrotate config
+  copy:
+    src: logrotate_syslog.conf
+    dest: /etc/logrotate_syslog.conf
+    owner: root
+    group: root
+    mode: 0644
+  tags: log-writer
+
+- name: Crontab for logrotate
+  cron:
+    name: "execute logrotate"
+    job: "logrotate -f /etc/logrotate_syslog.conf"
+    cron_file: /etc/crontab
+    user: root
+  tags: log-writer
+
+- name: Crontab for store_engine.py
+  cron:
+    name: "execute store_engine.py"
+    job: "/usr/local/lib/anaconda3/bin/python /opt/hayabusa/bin/store_engine.py"
+    cron_file: /etc/crontab
+    user: root
+  tags: log-writer
+
+- name: Copy logrotate config
+  copy:
+    src: logrotate.d/rsyslog
+    dest: /etc/logrotate.d/rsyslog
+    owner: root
+    group: root
+    mode: 0644
+  tags: log-writer

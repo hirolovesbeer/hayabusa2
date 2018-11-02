@@ -1,0 +1,13 @@
+- name: Copy hayabusa_worker.service
+  copy:
+    src: hayabusa_worker.service
+    dest: /lib/systemd/system/hayabusa_worker.service
+  tags: worker
+
+- name: Enable and start hayabusa_worker
+  systemd:
+    state: started
+    name: hayabusa_worker
+    daemon_reload: yes
+    enabled: yes
+  tags: worker

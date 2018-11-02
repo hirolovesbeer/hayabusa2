@@ -1,0 +1,19 @@
+[Unit]
+Description=Hayabusa WebUI
+After=network.target
+
+[Service]
+Environment=PYTHONPATH=/opt/hayabusa/lib
+PIDFile=/run/hayabusa_webui/pid
+User=hayabusa
+Group=hayabusa
+RuntimeDirectory=hayabusa_webui
+WorkingDirectory=/opt/hayabusa/webui
+ExecStart=/usr/local/lib/anaconda3/bin/gunicorn --pid /run/hayabusa_webui/pid \
+          --config gunicorn_config.py gentelella:app
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

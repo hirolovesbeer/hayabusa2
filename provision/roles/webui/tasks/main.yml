@@ -1,0 +1,21 @@
+- name: Copy database.db
+  copy:
+    src: database.db
+    dest: /opt/hayabusa/webui/app/database.db
+    owner: hayabusa
+    group: hayabusa
+  tags: webui-db
+
+- name: Copy hayabusa_webui.service
+  copy:
+    src: hayabusa_webui.service
+    dest: /lib/systemd/system/hayabusa_webui.service
+  tags: webui
+
+- name: Enable and start hayabusa_webui
+  systemd:
+    state: started
+    name: hayabusa_webui
+    daemon_reload: yes
+    enabled: yes
+  tags: webui

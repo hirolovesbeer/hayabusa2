@@ -1,0 +1,55 @@
+[basic]
+[nfs]
+# Use Public DNS or Public IP
+# ec2-xxxx.ap-northeast-1.compute.amazonaws.com
+
+[log-writer]
+# Use Public DNS or Public IP
+# ec2-xxxx.ap-northeast-1.compute.amazonaws.com
+
+[request-broker]
+# Use Public DNS or Public IP
+# ec2-xxxx.ap-northeast-1.compute.amazonaws.com
+
+[worker]
+# Use Public DNS or Public IP
+# ec2-worker1.ap-northeast-1.compute.amazonaws.com
+# ec2-worker2.ap-northeast-1.compute.amazonaws.com
+
+[webui]
+# Use Public DNS or Public IP
+# ec2-xxxx.ap-northeast-1.compute.amazonaws.com
+
+[cli-client]
+# Use Public DNS or Public IP
+# ec2-xxxx.ap-northeast-1.compute.amazonaws.com
+
+[monitor]
+# Use Public DNS or Public IP
+# ec2-xxxx.ap-northeast-1.compute.amazonaws.com
+
+[hayabusa:children]
+basic
+nfs
+log-writer
+request-broker
+worker
+webui
+cli-client
+monitor
+
+[hayabusa:vars]
+# Use Private DNS or Private IP
+
+nfs4_src=10.0.0.xxx:/opt/nfs
+request_broker_host=10.0.0.xxx
+monitor_host=10.0.0.xxx
+
+local_network=10.0.0.0/24
+nfs4_mount_options=auto,intr,fsc
+# 'all_squash' option is required.
+nfs4_export_options=rw,async,no_subtree_check,all_squash
+
+# python PATH for ami-940cdceb
+# Ubuntu Server 16.04 LTS (HVM), SSD Volume Type - ami-940cdceb
+ansible_python_interpreter=/usr/bin/python3

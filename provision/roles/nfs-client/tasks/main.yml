@@ -1,0 +1,8 @@
+- name: Mount NFSv4 File System
+  mount:
+    path: /mnt/nfs
+    src: "{{nfs4_src}}"
+    fstype: nfs4
+    opts: "{{ nfs4_mount_options }}"
+    state: mounted
+  tags: nfs-client

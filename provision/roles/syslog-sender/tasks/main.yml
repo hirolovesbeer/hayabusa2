@@ -1,0 +1,4 @@
+- name: Set up rsyslog
+  template: src=rsyslog.d/hayabusa.conf dest=/etc/rsyslog.d/hayabusa.conf
+  notify: restart rsyslog
+  tags: rsyslog-sender

@@ -1,0 +1,12 @@
+# user list with bcrypt password hash (sample)
+
+# import bcrypt
+# salt = bcrypt.gensalt(rounds=10, prefix=b'2a')
+# password = b'password'
+# bcrypt.hashpw(password, salt)
+
+# auth: BKPHT3QujGC687b2Sz4e
+auth: $2a$10$vLScYioSmyoZ/hAQSnuPHu9g4Y98OP0PeHR662XXwigNQIGvn08D.
+
+# syslog: mvEPMNThq94LQuys68gR
+syslog: $2a$10$ZOGGZAlEnZnxAJUe2orob.oi8bmvV7fNTwas2j/fiQ7qV5EdO1afi

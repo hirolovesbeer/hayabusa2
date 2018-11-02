@@ -1,0 +1,2 @@
+path: /usr/local/lib/anaconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+pythonpath: /opt/hayabusa/lib

@@ -1,0 +1,54 @@
+{% extends "base_site.html" %}
+
+{% block title %} Search Queries {% endblock title %}
+
+{% block stylesheets %}
+  {{ super() }}
+{% endblock stylesheets %}
+
+{% block content %}
+  <div class="right_col" role="main">
+    <div class="">
+      <div class="page-title">
+
+          <div class="row">
+              <div class="col-md-12 col-sm-12 col-xs-12">
+                  <div class="x_panel">
+                      <div class="x_title">
+                          <h2>Settings <small>Change Password</small></h2>
+                          <div class="clearfix"></div>
+                      </div>
+                      <div class="x_content">
+                          {% if notice %}
+                              <div id="notice" class="well" style="color: #000;">{{ notice }}</div>
+                          {% endif %}
+                          {% if error %}
+                              <div id="error" class="alert alert-warning" style="color: #fff;">{{ error }}</div>
+                          {% endif %}
+                          <form method="post" action="/home/update_password" class="form-inline">
+                              {% for field in form if field.widget.input_type != 'hidden'  %}
+                                  <div class="form-group" style="margin-bottom: 10px;">
+                                      <label class="control-label" style="width: 100px;">{{ field.label.text }}<span class="required">*</span></label>
+                                      {{ field(class="form-control") }}
+                                  </div><br>
+                              {% endfor %}
+                              <div class="form-group">
+                                  <button id="update_button" type="submit" class="btn btn-success" name="modify_account">Update</button>
+                              </div>
+                          </form>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+      </div>
+
+      <div class="clearfix"></div>
+
+    </div>
+  </div>
+{% endblock content %}
+
+{% block javascripts %}
+  {{ super() }}
+{% endblock javascripts %}

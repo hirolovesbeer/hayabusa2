@@ -1,0 +1,54 @@
+<div class="left_col scroll-view">
+  <div class="navbar nav_title" style="border: 0;">
+    <a href="" class="site_title"><i class="fa fa-spinner"></i> <span>Hayabusa</span></a>
+  </div>
+
+  <div class="clearfix"></div>
+
+  <!-- menu profile quick info -->
+  <!--
+  <div class="profile clearfix">
+    <div class="profile_pic">
+      <img src="/static/images/img.jpg" alt="..." class="img-circle profile_img">
+    </div>
+    <div class="profile_info">
+      <span>Welcome,</span><h2> {{ current_user.username }} </h2>
+    </div>
+  </div> -->
+  <!-- /menu profile quick info -->
+
+  <br />
+
+  <!-- sidebar menu -->
+    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+        <div class="menu_section">
+            <!-- <h3>General</h3> -->
+            {% if current_user.username == 'admin' %}
+                <ul class="nav side-menu">
+                    <li><a href="/admin/users"><i class="fa fa-users"></i>Users</a></li>
+                </ul>
+            {% else %}
+                <ul class="nav side-menu">
+                    <li><a href="/home/log_search"><i class="fa fa-search"></i>Log Search</a></li>
+                    <li><a href="/home/search_queries"><i class="fa fa-table"></i>Search Queries</a></li>
+                    <li><a href="/home/charts"><i class="fa fa-bar-chart"></i>Charts</a></li>
+                </ul>
+            {% endif %}
+                <ul class="nav side-menu">
+                    <li><a href="/home/settings"><i class="fa fa-gear"></i>Settings</a></li>
+                </ul>
+        </div>
+    </div>
+  <!-- /sidebar menu -->
+
+  <!-- /menu footer buttons -->
+  <div class="sidebar-footer hidden-small">
+    <a data-toggle="tooltip" data-placement="top" title="Settings" href="/home/settings">
+      <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+    </a>
+    <a data-toggle="tooltip" data-placement="top" title="Logout" href="/logout">
+      <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
+    </a>
+  </div>
+  <!-- /menu footer buttons -->
+</div>

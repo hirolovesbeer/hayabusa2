@@ -1,0 +1,2 @@
+PYTHONPATH={{ pythonpath }}
+PATH={{ path }}

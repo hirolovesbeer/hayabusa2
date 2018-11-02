@@ -1,0 +1,216 @@
+- name: Time Zone Asia/Tokyo
+  command: timedatectl set-timezone Asia/Tokyo
+  when: ansible_date_time.tz != "JST"
+  tags: time-zone
+
+- name: check editor
+  shell: update-alternatives --get-selections | grep editor | grep vim
+  ignore_errors: true
+  register: editor_vim
+  tags: editor
+
+- name: editor vim.basic
+  command: update-alternatives --set editor /usr/bin/vim.basic
+  when: editor_vim is failed
+  tags: editor
+
+- name: Install aptitude
+  apt: name=aptitude state=present update_cache=yes
+  tags: apt
+
+# require aptitude
+#- name: Upgrade Packages
+#  apt: upgrade=yes update_cache=yes
+#  tags: apt
+
+- name: Install Packages
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - build-essential
+    - ntpdate
+    - nfs-common
+    - parallel
+    - sqlite3
+    - tmux
+    # for CRON troubleshooting: cron emails error messages
+    - postfix
+    - mailutils
+  tags: apt
+
+- name: Create Hayabusa Group hayabusa
+  group:
+    name: hayabusa
+    gid: 2000
+  tags: hayabusa-user
+
+- name: Create hayabusa User hayabusa
+  user:
+    name: hayabusa
+    uid: 2000
+    group: hayabusa
+    home: /opt/hayabusa
+  tags: hayabusa-user
+
+- name: Download Anaconda
+  get_url:
+    url: https://repo.anaconda.com/archive/Anaconda3-5.2.0-Linux-x86_64.sh
+    dest: /usr/local/src/Anaconda3-5.2.0-Linux-x86_64.sh
+    checksum: sha256:09f53738b0cd3bb96f5b1bac488e5528df9906be2480fe61df40e0e0d19e3d48
+  tags: anaconda
+
+- name: Install Anaconda
+  command: bash /usr/local/src/Anaconda3-5.2.0-Linux-x86_64.sh -b -p /usr/local/lib/anaconda3
+  args:
+    creates: /usr/local/lib/anaconda3
+  tags: anaconda
+
+- name: Set PATH and PYTHONPATH in /etc/bash.bashrc
+  blockinfile:
+    path: /etc/bash.bashrc
+    insertafter: EOF
+    block: |
+      export PATH={{ path }}
+      export PYTHONPATH={{ pythonpath }}
+  tags: env-path
+
+#- name: Update Anaconda
+#  command: /usr/local/lib/anaconda3/bin/conda update --yes --prefix /usr/local/lib/anaconda3 anaconda
+#  tags: anaconda
+
+- name: Unarchive hayabusa.tgz
+  unarchive:
+    src: ../tmp/hayabusa.tgz
+    dest: /opt
+    owner: hayabusa
+    group: hayabusa
+  tags:
+    - hayabusa-unarchive
+    - hayabusa-install
+
+#- name: Copy /opt/hayabusa
+#  synchronize:
+#    src: ../../../../
+#    dest: /opt/hayabusa
+#    group: no
+#    owner: no
+#    delete: yes
+#    rsync_opts:
+#      - "--exclude=webui/app/database.db"
+#      - "--exclude=.git"
+#  tags: hayabusa-synchronize
+
+- name: chmod 600 /opt/hayabusa/etc/users.yml
+  file:
+    path: /opt/hayabusa/etc/users.yml
+    mode: 0600
+  tags: hayabusa-users
+
+- name: pip install for hayabusa
+  pip:
+    requirements: /opt/hayabusa/requirements.txt
+    executable: /usr/local/lib/anaconda3/bin/pip
+  tags: hayabusa-pip
+
+- name: Modify config.ini
+  ini_file:
+    state: present
+    dest: /opt/hayabusa/etc/config.ini
+    backup: yes
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - section: request-broker
+      option: host
+      value: "{{ request_broker_host }}"
+  tags:
+    - config
+    - hayabusa-install
+
+#- name: Download Zabbix Repository Package
+#  get_url:
+#    url: https://repo.zabbix.com/zabbix/3.4/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.4-1+xenial_all.deb
+#    dest: /usr/local/src/zabbix-release_3.4-1+xenial_all.deb
+#    checksum: sha256:c8ae4027ecad4f8d02f7f5e2e85e0f83aa8ad43ec6ab9ef4d13e8beb6395b0c8
+#  tags: zabbix-release
+#
+#- name: Install Zabbix Repository Package
+#  apt:
+#    deb: /usr/local/src/zabbix-release_3.4-1+xenial_all.deb
+#  tags: zabbix
+
+#- name: Install Zabbix Agent Packages
+#  apt: name={{ item }} state=present update_cache=yes
+#  with_items:
+#    - zabbix-agent
+#    - zabbix-get
+#  tags: zabbix-agent
+
+# deb files: http://repo.zabbix.com/zabbix/3.4/ubuntu/pool/main/z/zabbix/
+- name: Copy Zabbix deb Files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: zabbix-agent_3.4.12-1+xenial_amd64.deb
+      dest: /usr/local/src/zabbix-agent_3.4.12-1+xenial_amd64.deb
+    - src: zabbix-get_3.4.12-1+xenial_amd64.deb
+      dest: /usr/local/src/zabbix-get_3.4.12-1+xenial_amd64.deb
+  tags: zabbix-agent-deb
+
+- name: Install Zabbix Agent Packages
+  apt:
+   deb: "{{ item }}"
+  with_items:
+    - /usr/local/src/zabbix-agent_3.4.12-1+xenial_amd64.deb
+    - /usr/local/src/zabbix-get_3.4.12-1+xenial_amd64.deb
+  tags: zabbix-agent-deb
+
+- name: Set up Zabbix Agent
+  template:
+    src: zabbix_agentd.conf
+    dest: /etc/zabbix/zabbix_agentd.conf
+    backup: yes
+  notify: restart zabbix-agent
+  tags: zabbix-agent-conf
+
+- name: Set up Zabbix Agent Environment File
+  template:
+    src: default/zabbix-agent
+    dest: /etc/default/zabbix-agent
+    mode: 0644
+  notify: restart zabbix-agent
+  tags: zabbix-agent-conf
+
+- name: Set up Zabbix Agent Userparameter File
+  copy:
+    src: zabbix/zabbix_agentd.d/userparameter_hayabusa.conf
+    dest: /etc/zabbix/zabbix_agentd.d/userparameter_hayabusa.conf
+    mode: 0644
+  notify: restart zabbix-agent
+  tags: zabbix-agent-conf
+
+- name: Start and Enable Zabbix Agent
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  with_items:
+    # '.service' must be added to avoid enabling /etc/init.d/zabbix-agent
+    - zabbix-agent.service
+  tags: zabbix-agent
+
+- name: Create Hayabusa Log Directory
+  file:
+    path: /var/log/hayabusa
+    state: directory
+    owner: syslog
+    group: adm
+  tags: rsyslog
+
+- name: Set up logrotate
+  copy:
+    src: logrotate.d/hayabusa
+    dest: /etc/logrotate.d/hayabusa
+    mode: 0644
+  tags: logrotate

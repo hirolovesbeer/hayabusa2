@@ -1,0 +1,183 @@
+{% extends "base_site.html" %}
+
+{% block title %} Search Queries {% endblock title %}
+
+{% block stylesheets %}
+  {{ super() }}
+  <link href="{{ url_for('static', filename='vendors/datatables.net-bs/css/dataTables.bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/select.dataTables.min.css') }}" rel="stylesheet">
+{% endblock stylesheets %}
+
+{% block content %}
+  <div class="right_col" role="main">
+    <div class="">
+      <div class="page-title">
+        <!-- <div class="title_left">
+          <h3>Users <small>Some examples to get you started</small></h3>
+        </div> -->
+
+
+        <div class="row">
+
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2>Search Queries</h2>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                <!-- <p class="text-muted font-13 m-b-30">
+                  DataTables has most features enabled by default, so all you need to do to use it with your own tables is to call the construction function: <code>$().DataTable();</code>
+                </p> -->
+                <div id="notice" class="well" style="color: #000; display: none;"></div>
+                <div id="result" class="alert alert-success" style="color: #fff; display: none;"></div>
+                <div id="error" class="alert alert-warning" style="color: #fff; display: none;"></div>
+                <div style="margin: 0 0 15px;">
+                  <form id="query_form" action="/home/queries" method="post" class="form-inline">
+                    <div class="form-group">
+                      <label class="control-label" style="margin-right: 77px;">Name<span class="required">*</span></label>
+                      <input type="text" class="form-control" required="required" id="name" name="name" value="{{ date }}" size="33">
+                    </div>
+                    <br>
+                    <div class="form-group" style="margin-top: 10px">
+                      <label class="control-label" style="margin-right: 18px;">Search keyword</label>
+                      <input type="text" class="form-control" id="match" name="match" placeholder="192.168" value="{{ match }}" size="33">
+                    </div>
+                    <br><br>
+                    <div class="form-group">
+                      <input type="checkbox" class="flat" id="exact" name="exact"{% if exact %} checked{% endif %}>
+                      <label class="form-check-label" for="exact">exact match</label>
+                    </div>
+                    <br>
+                    <div class="form-group" style="margin-top: 10px">
+                      <button id="submit_button" type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                  </form>
+                </div>
+
+                <table id="query_list" class="table table-striped table-bordered bulk_action">
+                  <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Search Keyword</th>
+                    <th>Exact Match</th>
+                  </tr>
+                  </thead>
+                </table>
+                <button id="delete_button" type="button" class="btn btn-primary">Delete</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+              <div class="x_title">
+                <h2>Chart</h2>
+                <ul class="nav navbar-right">
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                    <ul class="dropdown-menu" role="menu">
+                      <li><a href="#" onclick="timeUnitMinute(chart); return false;">Minute</a>
+                      </li>
+                      <li><a href="#" onclick="timeUnitHour(chart); return false;">Hour</a>
+                      </li>
+                      <li><a href="#" onclick="timeUnitDay(chart); return false;">Day</a>
+                      </li>
+                      <li><a href="#" onclick="timeUnitWeek(chart); return false;">Week</a>
+                      </li>
+                      <li><a href="#" onclick="timeUnitMonth(chart); return false;">Month</a>
+                      </li>
+                    </ul>
+                  </li>
+                </ul>
+                <div class="clearfix"></div>
+              </div>
+              <div class="x_content">
+                <canvas id="query_chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="clearfix"></div>
+
+    </div>
+  </div>
+{% endblock content %}
+
+{% block javascripts %}
+  {{ super() }}
+  <!-- Datatables -->
+  <script src="{{ url_for('static', filename='vendors/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-bs/js/dataTables.bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-buttons/js/dataTables.buttons.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-buttons/js/buttons.flash.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-buttons/js/buttons.html5.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-buttons/js/buttons.print.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-keytable/js/dataTables.keyTable.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/datatables.net-scroller/js/dataTables.scroller.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/jszip/dist/jszip.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/pdfmake/build/pdfmake.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendors/pdfmake/build/vfs_fonts.js') }}"></script>
+
+  <!-- Datatables select -->
+  <script src="{{ url_for('static', filename='js/dataTables.select.min.js') }}"></script>
+  <!-- Chart.js -->
+  <script src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
+
+  <script src="{{ url_for('static', filename='js/hayabusa.js') }}"></script>
+  <script>
+    var table = createQueryListDataTable('#query_list', '/home/query_table_data');
+    var form = $('#query_form');
+    var chart = createChart('query_chart');
+
+    function updatePageChart() {
+      updateChart(chart, '/home/query_chart_data');
+    }
+
+    function afterSaveQuery() {
+      $('#name').val('');
+      $('#match').val('');
+      $('#exact').prop('checked', false);
+      $('#exact').parent().removeClass('checked');
+      table.ajax.reload();
+      updatePageChart();
+    }
+
+    function afterDeleteQuery() {
+      table.ajax.reload();
+      clearChart(chart);
+      updatePageChart();
+    }
+
+    $(document).ready( function() {
+      updatePageChart();
+      setInterval(updatePageChart, 30*1000);
+      $('#submit_button').on('click', function() {
+        $('#notice').text('').hide();
+        $('#result').text('').hide();
+        $('#error').text('').hide();
+        saveQuery(form, afterSaveQuery);
+        event.preventDefault();
+      });
+      $('#delete_button').on('click', function() {
+        item = table.rows( { selected: true } ).data()[0];
+        if (item !== undefined) {
+          var url = '/home/queries/'+item['query_id'];
+          deleteQuery(url, afterDeleteQuery);
+        }
+      });
+    });
+  </script>
+{% endblock javascripts %}

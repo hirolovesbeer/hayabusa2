@@ -1,0 +1,16 @@
+[Unit]
+Description=Hayabusa Worker
+After=network.target
+
+[Service]
+Environment=PYTHONPATH=/opt/hayabusa/lib
+Type=simple
+KillMode=control-group
+WorkingDirectory=/opt/hayabusa/bin
+ExecStart=/usr/local/lib/anaconda3/bin/python worker.py
+Restart=on-failure
+User=hayabusa
+Group=hayabusa
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,44 @@
+- name: Install NFS Packages
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - nfs-kernel-server
+  tags: nfs-server
+
+- name: Enable and Start nfsd
+  service: name=nfs-kernel-server state=started enabled=yes
+  tags: nfs-server
+
+- name: Create NFS Directory
+  file:
+    path: /opt/nfs
+    state: directory
+    mode: 0755
+    owner: nobody
+    group: nogroup
+  tags: nfs-server
+
+- name: Create Monitor Directory
+  file:
+    path: /opt/nfs/monitor
+    state: directory
+    mode: 0755
+    owner: nobody
+    group: nogroup
+  tags: nfs-monitor-dir
+
+- name:  Create Read Check File
+  copy:
+    src: monitor/nfs_read_check.txt
+    dest: /opt/nfs/monitor/nfs_read_check.txt
+    mode: 0444
+    owner: nobody
+    group: nogroup
+  tags: nfs-read-check-file
+
+- name: Export NFS Directory
+  lineinfile:
+    dest: /etc/exports
+    line: "/opt/nfs {{ local_network }}({{ nfs4_export_options }})"
+    insertafter: EOF
+  notify: restart nfsd
+  tags: nfs-export

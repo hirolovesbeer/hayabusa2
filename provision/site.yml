@@ -1,0 +1,74 @@
+- hosts: all
+  remote_user: ubuntu
+  become: true
+
+- hosts: basic
+  remote_user: ubuntu
+  become: true
+  roles:
+    - basic
+  tags: role-basic
+
+- hosts: nfs
+  remote_user: ubuntu
+  become: true
+  roles:
+    - basic
+    - nfs
+  tags: role-nfs
+
+- hosts: log-writer
+  remote_user: ubuntu
+  become: true
+  roles:
+    - basic
+    - nfs-client
+    - syslog-sender
+    - log-writer
+  tags: role-log-writer
+
+- hosts: request-broker
+  remote_user: ubuntu
+  become: true
+  roles:
+    - basic
+    - syslog-sender
+    - request-broker
+  tags: role-request-broker
+
+- hosts: worker
+  remote_user: ubuntu
+  become: true
+  roles:
+    - basic
+    - nfs-client
+    - syslog-sender
+    - worker
+  tags: role-worker
+
+- hosts: webui
+  remote_user: ubuntu
+  become: true
+  roles:
+    - basic
+    - syslog-sender
+    - webui
+  tags: role-webui
+
+- hosts: cli-client
+  remote_user: ubuntu
+  become: true
+  roles:
+    - basic
+    - syslog-sender
+  tags: role-cli-client
+
+- hosts: monitor
+  remote_user: ubuntu
+  become: true
+  roles:
+    - basic
+    - monitor
+  vars:
+    zabbix_db_password: QNmAbHMRkucKsB4fDWjS
+  tags: role-monitor

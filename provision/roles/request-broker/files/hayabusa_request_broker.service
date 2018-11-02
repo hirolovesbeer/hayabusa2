@@ -1,0 +1,19 @@
+[Unit]
+Description=Hayabusa Request Broker
+After=network.target
+
+[Service]
+Environment=PYTHONPATH=/opt/hayabusa/lib
+PIDFile=/run/request_broker/pid
+User=hayabusa
+Group=hayabusa
+RuntimeDirectory=request_broker
+WorkingDirectory=/opt/hayabusa/daemon
+ExecStart=/usr/local/lib/anaconda3/bin/gunicorn --pid /run/request_broker/pid \
+          --config request_broker_config.py request_broker:api
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,138 @@
+# Zabbix Installation
+# https://www.zabbix.com/download?zabbix=3.4&os_distribution=ubuntu&os_version=xenial&db=MySQL
+
+- name: Set up /etc/sudoers for Zabbix Server
+  lineinfile:
+    dest: /etc/sudoers
+    line: "zabbix ALL=NOPASSWD: /bin/mkdir, /bin/mount, /bin/umount"
+    insertafter: EOF
+  tags: zabbix-server-sudoers
+
+- name: Install Zabbix Related Packages
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+    - python3-mysqldb
+    - mariadb-client-10.0
+    - mariadb-server-10.0
+#    - zabbix-server-mysql
+#    - zabbix-frontend-php
+  tags: zabbix-server-apt
+
+# deb files: http://repo.zabbix.com/zabbix/3.4/ubuntu/pool/main/z/zabbix/
+- name: Copy Zabbix deb Files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: zabbix-frontend-php_3.4.12-1+xenial_all.deb
+      dest: /usr/local/src/zabbix-frontend-php_3.4.12-1+xenial_all.deb
+    - src: zabbix-server-mysql_3.4.12-1+xenial_amd64.deb
+      dest: /usr/local/src/zabbix-server-mysql_3.4.12-1+xenial_amd64.deb
+  tags: zabbix-server-deb
+
+- name: Install Zabbix Related deb Files
+  apt:
+    deb: "{{ item }}"
+  with_items:
+    - /usr/local/src/zabbix-frontend-php_3.4.12-1+xenial_all.deb
+    - /usr/local/src/zabbix-server-mysql_3.4.12-1+xenial_amd64.deb
+  tags: zabbix-server-deb
+
+- name: Create Zabbix DB User
+  mysql_user:
+    name: zabbix
+    password: "{{ zabbix_db_password }}"
+    host: localhost
+    priv: zabbix.*:ALL,GRANT
+  tags: zabbix-db
+
+- name: Copy Zabbix DB Data
+  copy:
+    src: zabbix.sql.gz
+    dest: /usr/local/src/zabbix.sql.gz
+  tags: zabbix-db
+
+- name: Create Zabbix DB
+  mysql_db:
+    name: zabbix
+    encoding: utf8
+    collation: utf8_bin
+  tags: zabbix-db
+
+- name: Import Zabbix DB Data
+  mysql_db:
+    name: zabbix
+    state: import
+    target: /usr/local/src/zabbix.sql.gz
+#    target: /usr/share/doc/zabbix-server-mysql/create.sql.gz
+  ignore_errors: true
+  tags: zabbix-db
+
+- name: Enable and Start Zabbix Related Daemons
+  service: name={{ item }} state=started enabled=yes
+  with_items:
+    # '.service' must be added to avoid enabling /etc/init.d/zabbix-server
+    - zabbix-server.service
+    - apache2
+  tags: zabbix-server
+
+- name: Set up Zabbix Server Environment File
+  template:
+    src: default/zabbix-server
+    dest: /etc/default/zabbix-server
+    mode: 0644
+  notify: restart zabbix-server
+  tags: zabbix-server-conf
+
+- name: Set up zabbix/zabbix_server.conf
+  template:
+    src: zabbix_server.conf
+    dest: /etc/zabbix/zabbix_server.conf
+    backup: yes
+  notify: restart zabbix-server
+  tags: zabbix-server-conf
+
+- name: Set up Zabbix Web Config File
+  template:
+    src: zabbix.conf.php
+    dest: /usr/share/zabbix/conf/zabbix.conf.php
+  tags: zabbix-server-conf
+
+- name: Set up zabbix/apache.conf
+  replace:
+    path: /etc/zabbix/apache.conf
+    regexp: "# php_value date.timezone Europe/Riga"
+    replace: "php_value date.timezone Asia/Tokyo"
+    backup: yes
+  notify: restart apache2
+  tags: zabbix-apache-conf
+
+- name: Copy Apache Config File
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: apache2.conf
+      dest: /etc/apache2/apache2.conf
+    - src: index.html
+      dest: /var/www/html/index.html
+  notify: restart apache2
+  tags: apache-conf
+
+- name: Set up rsyslog
+  copy: src=rsyslog.d/hayabusa-monitor.conf dest=/etc/rsyslog.d/hayabusa-monitor.conf
+  notify: restart rsyslog
+  tags: rsyslog-monitor
+
+- name: Set up rsyslog UDP, TCP
+  blockinfile:
+    path: /etc/rsyslog.conf
+    insertbefore: "# provides UDP syslog reception"
+    block: |
+      module(load="imudp")
+      input(type="imudp" port="514")
+
+      module(load="imtcp")
+      input(type="imtcp" port="514")
+  notify: restart rsyslog
+  tags: rsyslog-monitor-net
