@@ -20,6 +20,7 @@ Distributed Search Engine for Massive System Log Dataset
 ![Distributed Hayabusa Architecture](./images/distributed-hayabusa-with-NFS-arch.png "distributed hayabusa architecture image")
 
 # WebUI Image
+[Hayabusa2 WebUI](./webui/README.md)
 
 # Setup
 ## Recommended System Environment
@@ -156,3 +157,8 @@ $ vi hosts
 ```
 $ ansible-playbook -i hosts site.yml
 ```
+
+
+
+# User configuration
+## API

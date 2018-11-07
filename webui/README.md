@@ -6,4 +6,14 @@ Base on the Flask Gentelella
 
 
 # WebUI image
-- Include WebUI
+![Search WebUI](../images/hayabusa-webui-result.png "distributed hayabusa architecture image")
+
+
+# Initial user & password
+**This is initial user configuration. You should change the password as soon as possible!!**
+
+|User|Password(for login)| user type |
+|:---|:---:|---:|
+|admin|VhLrUZziERQ5AjfKTXtF|administrator|
+|syslog|tmpGCDreTJN4WszwMgbK|general user|
+|auth|nhAfev3mXgCrN4EWBPbi|general user|
