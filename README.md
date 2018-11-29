@@ -45,7 +45,7 @@ $ cd hayabusa2
 
 2. Make archive files
 ```
-git archive --format=tar --prefix=hayabusa/ HEAD | gzip > tmp/hayabusa.tgz
+$ git archive --format=tar --prefix=hayabusa/ HEAD | gzip > tmp/hayabusa.tgz
 ```
 
 3. Edit ansible hosts files
