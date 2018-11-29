@@ -43,7 +43,12 @@ $ git clone git@github.com:hirolovesbeer/hayabusa2.git
 $ cd hayabusa2
 ```
 
-2. Edit ansible hosts files
+2. Make archive files
+```
+git archive --format=tar --prefix=hayabusa/ HEAD | gzip > tmp/hayabusa.tgz
+```
+
+3. Edit ansible hosts files
 
 ```
 $ cd provision
