@@ -160,6 +160,7 @@ $ vi hosts
 - exec install command in provision directory
 
 ```
+$ cd provision
 $ ansible-playbook -i hosts site.yml
 ```
 
