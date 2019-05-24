@@ -1,0 +1,2 @@
+FLASK_APP="/opt/hayabusa/webui/rest/rest.py"
+_EOF_

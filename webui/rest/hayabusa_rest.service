@@ -1,0 +1,26 @@
+# install to /lib/systemd/system
+#
+# sudo systemctl start hayabusa_rest.service
+# sudo systemctl stop hayabusa_rest.service
+# sudo systemctl status hayabusa_rest.service
+# sudo systemctl enable hayabusa_rest.service <- auto daemon start
+#
+
+[Unit]
+Description=Hayabusa REST
+After=network.target
+
+[Service]
+EnvironmentFile=/opt/hayabusa/webui/rest/env
+PIDFile=/run/hayabusa_webui/rest_pid
+User=hayabusa
+Group=hayabusa
+RuntimeDirectory=hayabusa_rest
+WorkingDirectory=/opt/hayabusa/webui/rest
+ExecStart=/usr/local/lib/anaconda3/bin/flask run --host=0.0.0.0 --
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
