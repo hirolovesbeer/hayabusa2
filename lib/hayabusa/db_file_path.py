@@ -14,8 +14,8 @@ def generate_hour_path(hour):
         start, end = hour
         if start == end:
             path = '%02d' % start
-        elif start > end:
-            raise TypeError
+#        elif start > end:
+#            raise TypeError
         else:
             path = '{%02d..%02d}' % hour
     else:
