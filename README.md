@@ -45,6 +45,7 @@ $ cd hayabusa2
 
 2. Make archive files
 ```
+$ mkdir tmp
 $ git archive --format=tar --prefix=hayabusa/ HEAD | gzip > tmp/hayabusa.tgz
 ```
 
