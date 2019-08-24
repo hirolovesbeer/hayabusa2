@@ -7,7 +7,7 @@
 # curl -X POST -H 'Accept:application/json' -H 'Content-Type:application/json' -d '{"start-time":"2019-05-08 09:15", "end-time":"2019-05-08 09:30", "match":"error", "user":"syslog", "password":"mvEPMNThq94LQuys68gR", "count":"true", "sum":"false", "exact":"false"}'  localhost:5000/
 #
 
-
+import os
 import sys
 import tempfile
 
