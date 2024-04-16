@@ -3,4 +3,4 @@ flask_login
 flask_migrate
 flask_wtf
 flask_sqlalchemy
-gunicorn==19.9.0
+gunicorn==22.0.0
